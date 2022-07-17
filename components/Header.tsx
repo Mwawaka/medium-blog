@@ -1,7 +1,7 @@
 import Link from "next/link";
 const Header = () => {
   return (
-    <header className=" container font-outfit flex justify-between mx-auto max-w-7xl">
+    <header className=" container font-outfit flex justify-between mx-auto max-w-7xl my-4">
       <div className=" flex items-center space-x-6">
         <Link href={`/`}>
           <img
