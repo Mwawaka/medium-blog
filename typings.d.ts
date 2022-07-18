@@ -6,6 +6,7 @@ export interface Post{
     title: string;
     author: {
         name: string;
+        image: image;
 
     };
     description: string;
