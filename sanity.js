@@ -1,7 +1,7 @@
 // file will be use to connect the frontend to the sanity backend.
 
 import { createCurrentUserHook, createClient } from "next-sanity";
-import {createImageUrlBuilder} from "@sanity/image-url"
+import imageUrlBuilder from "@sanity/image-url";
 export const config = {
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
@@ -13,8 +13,11 @@ export const config = {
 export const sanityClient = createClient(config);
 
 // set up a helper function for generating Image urls with only the asset reference data
+const builder = imageUrlBuilder(config);
 export const urlFor = (source) => {
-  createImageUrlBuilder(config).image(source);
+  return (
+    builder.image(source)
+  );
 };
 
 // Helper function for using the current logged in user account
