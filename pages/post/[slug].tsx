@@ -3,10 +3,28 @@ import PortableText from "react-portable-text";
 import Header from "../../components/header";
 import { sanityClient, urlFor } from "../../sanity";
 import { Post } from "../../typings";
+import { useForm, SubmitHandler } from "react-hook-form";
+
+// typescript interface
 interface Props {
   postData: Post;
 }
+interface IFormInput {
+  _id: string; //? optional _id?:string
+  name: string;
+  email: string;
+  comment: string;
+}
 const PostData = ({ postData }: Props) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IFormInput>();
+
+  const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+    console.log(data);
+  };
   return (
     <main className="">
       <Header />
@@ -14,7 +32,7 @@ const PostData = ({ postData }: Props) => {
         src={urlFor(postData.mainImage).url()}
         className="w-full h-24 object-cover md:h-40"
       />
-      <article className="max-w-3xl mx-auto flex flex-col space-y-1 ">
+      <article className="max-w-3xl mx-auto flex flex-col space-y-1 px-5">
         <h1 className="text-3xl mt-10 mb-2 ">{postData.title}</h1>
         <h2 className="text-gray-500 text-md ">{postData.description}</h2>
         <div className="flex items-center  space-x-4">
@@ -28,32 +46,112 @@ const PostData = ({ postData }: Props) => {
             Published at {new Date(postData._createdAt).toLocaleString()}
           </p>
         </div>
+        <div className="leading-8 mb-3">
+          <PortableText
+            dataset={process.env.NEXT_PUBLIC_SANITY_DATASET}
+            projectId={process.env.NEXT_PUBLIC_SANITY_PROJECT_ID}
+            content={postData.body}
+            serializers={{
+              h1: (props: any) => (
+                <h1 className="text-3xl font-bold my-5" {...props} />
+              ),
+              h2: (props: any) => (
+                <h1 className="text-xl font-bold my-5" {...props} />
+              ),
+              li: ({ children }: any) => (
+                <li className="ml-4 list-disc"> {children}</li>
+              ),
+              link: ({ href, children }: any) => (
+                <a href={href} className="text-blue-500 hover:underline">
+                  {children}
+                </a>
+              ),
+            }}
+          />
+        </div>
       </article>
-      <div className="max-w-3xl mx-auto">
-        <PortableText
-          dataset={process.env.NEXT_PUBLIC_SANITY_DATASET}
-          projectId={process.env.NEXT_PUBLIC_SANITY_PROJECT_ID}
-          content={postData.body}
-          serializers={
-                      {
-            h1: (props: any) => (
-              <h1 className="text-3xl font-bold my-5" {...props} />
-            ),
-            h2: (props: any) => (
-              <h1 className="text-xl font-bold my-5" {...props} />
-            ),
-            li: ({ children }: any) => (
-              <li className="ml-4 list-disc"> {children}</li>
-            ),
-            link: ({ href, children }: any) => (
-              <a href={href} className="text-blue-500 hover:underline">
-                {children}
-              </a>
-            ),
-                      }
-                  }
+      <hr className="border-yellow-400 max-w-lg mx-auto border my-5" />
+
+      {/* form */}
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col p-6 max-w-2xl mx-auto mb-12"
+      >
+        <h3 className="text-base text-yellow-400">Enjoyed this article ?</h3>
+        <h4 className="font-bold text-3xl">Leave a comment below !</h4>
+        <hr className=" py-3 mt-2 " />
+        <label className="flex flex-col space-y-3 mb-4">
+          <span className=" text-gray-700">Name</span>
+          {/* id of the form */}
+
+          <input
+            type="hidden"
+            {...register("_id")}
+            name="id" //input element requires the name attribute for the value to be sent
+            value={postData._id} //specifies the initial value of the input field
+          />
+          <input
+            {...register("name", {
+              required: true,
+              maxLength: 20,
+              minLength: {
+                value: 2,
+                message: "Name is too short",
+              },
+            })}
+            type="text"
+            placeholder="John Doe"
+            className=" py-2 px-4 border rounded shadow-md form-input outline-none focus:ring ring-yellow-400"
+          />
+        </label>
+        <label className="flex flex-col space-y-3 mb-4">
+          <span className=" text-gray-700">Email</span>
+          <input
+            {...register("email", {
+              required: true,
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: "Email address is invalid",
+              },
+            })}
+            type="email"
+            placeholder="johndoe@gmail.com"
+            className=" py-2 px-4 border rounded shadow-md form-input outline-none focus:ring ring-yellow-400"
+          />
+        </label>
+        <label className="flex flex-col space-y-3 mb-4">
+          <span className=" text-gray-700">Comment</span>
+          <textarea
+            {...register("comment", { required: true })}
+            placeholder="Comment..."
+            rows={8}
+            className=" py-2 px-4 border rounded shadow-md form-input outline-none focus:ring ring-yellow-400"
+          />
+        </label>
+
+        {/* error will return if the field validation fails */}
+        <div className="flex flex-col space-y-3 ">
+          {errors.name && (
+            <span className="text-red-500">- Name is required.</span>
+          )}
+          {/* {errors.name?.message && (
+            <span className="text-red-500">-{errors.name.message}</span>
+          )} */}
+          {errors.email && (
+            <span className="text-red-500">- Email is required.</span>
+          )}
+      
+          {errors.comment && (
+            <span className="text-red-500">- Comment is required.</span>
+          )}
+        </div>
+
+        <input
+          type="submit"
+          value="Submit"
+          className="bg-yellow-500 py-2 shadow-md rounded hover:bg-yellow-400 focus:outline-none cursor-pointer text-white font-semibold "
         />
-      </div>
+      </form>
     </main>
   );
 };
@@ -106,7 +204,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   });
   if (!postData) {
     return {
-      notFound: true,
+      notFound: true, //returns a 404 page if the post data is not found
     };
   }
   return {
