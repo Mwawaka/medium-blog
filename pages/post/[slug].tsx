@@ -1,26 +1,61 @@
 import { GetStaticProps } from "next";
+import PortableText from "react-portable-text";
 import Header from "../../components/header";
 import { sanityClient, urlFor } from "../../sanity";
 import { Post } from "../../typings";
-interface Props{
-    postData:Post
+interface Props {
+  postData: Post;
 }
 const PostData = ({ postData }: Props) => {
-    return (
-        <main className=""> 
-            <Header />
-            <img src={urlFor(postData.mainImage).url()} className="w-full h-40 object-cover" />
-            <article className="max-w-3xl mx-auto flex flex-col space-y-1 ">
-                <h1 className="text-3xl mt-10 mb-4 ">{postData.title}</h1>
-                <h2 className="text-gray-500 text-xl">{postData.description}</h2>
-                <div className="flex items-center  space-x-4" >
-                    <img src={urlFor(postData.author.image).url()} className="h-12 w-12 rounded-full mt-2" />
-                    <p className="text-xs font-extralight">Blog post by <span className="text-green-600">{postData.author.name} </span> - Published at {new Date(postData._createdAt).toLocaleString() }</p>
-                </div>
-            </article>
-        </main>
-    )
-    
+  return (
+    <main className="">
+      <Header />
+      <img
+        src={urlFor(postData.mainImage).url()}
+        className="w-full h-24 object-cover md:h-40"
+      />
+      <article className="max-w-3xl mx-auto flex flex-col space-y-1 ">
+        <h1 className="text-3xl mt-10 mb-2 ">{postData.title}</h1>
+        <h2 className="text-gray-500 text-md ">{postData.description}</h2>
+        <div className="flex items-center  space-x-4">
+          <img
+            src={urlFor(postData.author.image).url()}
+            className="h-12 w-12 rounded-full mt-2"
+          />
+          <p className="text-xs font-extralight">
+            Blog post by{" "}
+            <span className="text-green-600">{postData.author.name} </span> -
+            Published at {new Date(postData._createdAt).toLocaleString()}
+          </p>
+        </div>
+      </article>
+      <div className="max-w-3xl mx-auto">
+        <PortableText
+          dataset={process.env.NEXT_PUBLIC_SANITY_DATASET}
+          projectId={process.env.NEXT_PUBLIC_SANITY_PROJECT_ID}
+          content={postData.body}
+          serializers={
+                      {
+            h1: (props: any) => (
+              <h1 className="text-3xl font-bold my-5" {...props} />
+            ),
+            h2: (props: any) => (
+              <h1 className="text-xl font-bold my-5" {...props} />
+            ),
+            li: ({ children }: any) => (
+              <li className="ml-4 list-disc"> {children}</li>
+            ),
+            link: ({ href, children }: any) => (
+              <a href={href} className="text-blue-500 hover:underline">
+                {children}
+              </a>
+            ),
+                      }
+                  }
+        />
+      </div>
+    </main>
+  );
 };
 export default PostData;
 
@@ -38,7 +73,7 @@ export const getStaticPaths = async () => {
     `;
   const postData = await sanityClient.fetch(query);
 
-  // configuring the dynamic paths and finding the pages that exist 
+  // configuring the dynamic paths and finding the pages that exist
   const paths = postData.map((post: Post) => ({
     params: {
       slug: post.slug.current,
@@ -66,19 +101,19 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       body,
       }
     `;
-    const postData = await sanityClient.fetch(query, {
-      slug:params?.slug
-    });
-    if (!postData) {
-        return {
-            notFound: true,
-        }
-    }
+  const postData = await sanityClient.fetch(query, {
+    slug: params?.slug, //initializes the $slug variable
+  });
+  if (!postData) {
+    return {
+      notFound: true,
+    };
+  }
   return {
     props: {
       postData,
-      },
-    revalidate:60, //revalidate the cached 
+    },
+    revalidate: 60, //revalidate the cached data Incremental static regeneration
   };
 };
 
