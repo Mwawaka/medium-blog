@@ -8,8 +8,11 @@ const Posts = ({ posts }: Props) => {
       {posts.map((post) => {
         return (
           <Link key={post._id} href={`/post/${post.slug.current}`} passHref>
-            <div className="border rounded-xl group cursor-pointer overflow-hidden"> 
-              <img src={urlFor(post.mainImage).url()!} className="h-60 w-full object-cover group-hover:scale-105 transition-transform duration-200 ease-in-out " />
+            <div className="border rounded-xl  cursor-pointer overflow-hidden ">
+              <img
+                src={urlFor(post.mainImage).url()!}
+                className="h-60 w-full object-cover transform transition-transform hover:scale-105 ease-in-out duration-150" 
+              />
               <div className="flex justify-between bg-white p-8">
                 <div>
                   <p className="text-2xl font-semibold ">{post.title}</p>
