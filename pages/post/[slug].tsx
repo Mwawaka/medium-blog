@@ -84,6 +84,7 @@ const PostData = ({ postData }: Props) => {
         </div>
       </article>
       <hr className="border-yellow-400 max-w-lg mx-auto border my-5" />
+      
       {submitted ? (
         <h1>Submitted Successfully</h1>
       ) : (
