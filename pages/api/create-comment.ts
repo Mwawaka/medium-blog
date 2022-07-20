@@ -12,12 +12,14 @@ const config = {
 const client = sanityClient(config);
 
 export default async function createComment(
+  // typescript 
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   const { _id, name, email, comment } = JSON.parse(req.body);
   try {
     await client.create({
+      // creates a new document in sanity cms 
       _type: "comment",
       post: {
         _type: "reference",
@@ -31,5 +33,5 @@ export default async function createComment(
     return res.status(500).json({ message: "Could not submit comment", error });
   }
   console.log("Comment submitted");
-  res.status(200).json({ name: "John Doe" });
+  return res.status(200).json({ message: "Comment submitted" }) //required to solve the error 
 }

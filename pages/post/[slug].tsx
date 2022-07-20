@@ -27,6 +27,9 @@ const PostData = ({ postData }: Props) => {
   const onSubmit: SubmitHandler<IFormInput> = async (data) => {
     await fetch("/api/create-comment", {
       method: "POST",
+      // headers: {
+      //   'Content-Type': 'multipart/form-data'
+      // },
       body: JSON.stringify(data),
     })
       .then(() => {
@@ -84,9 +87,14 @@ const PostData = ({ postData }: Props) => {
         </div>
       </article>
       <hr className="border-yellow-400 max-w-lg mx-auto border my-5" />
-      
+
       {submitted ? (
-        <h1>Submitted Successfully</h1>
+        <div className="bg-yellow-500 py-5 text-center text-white mt-12 max-w-3xl mx-auto space-y-3">
+          <h1 className="text-4xl font-bold">
+            Thank you! Comment Submitted Successfully !
+          </h1>
+          <p className="font-lg tracking-wider">Later seen, if approved</p>
+        </div>
       ) : (
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -168,6 +176,20 @@ const PostData = ({ postData }: Props) => {
           />
         </form>
       )}
+      <div className="max-w-2xl mx-auto flex flex-col space-y-5  my-12 shadow-lg   shadow-yellow-500 ">
+        <h1 className="font-bold text-3xl">Comments</h1>
+        <hr />
+        {postData.comments.map((comment) => {
+          return (
+            <div key={comment._id} className="">
+              <p className="py-5">
+                <span className="text-yellow-500">{comment.name}</span>:{" "}
+                {comment.comment}
+              </p>
+            </div>
+          );
+        })}
+      </div>
     </main>
   );
 };
@@ -208,6 +230,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         name,
         image
       },
+      'comments':*[_type=='comment' && approved==true && post._ref==^._id],
       description,
       mainImage,
       title,
@@ -216,7 +239,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       }
     `;
   const postData = await sanityClient.fetch(query, {
-    slug: params?.slug, //initializes the $slug variable
+    slug: params?.slug, //initializes the $slug variable ?optional
   });
   if (!postData) {
     return {
