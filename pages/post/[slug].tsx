@@ -176,7 +176,7 @@ const PostData = ({ postData }: Props) => {
           />
         </form>
       )}
-      <div className="max-w-2xl mx-auto flex flex-col space-y-5  my-12 shadow-lg   shadow-yellow-500 ">
+      <div className="max-w-2xl mx-auto flex flex-col space-y-5  my-12 shadow shadow-yellow-400 py-2 px-5">
         <h1 className="font-bold text-3xl">Comments</h1>
         <hr />
         {postData.comments.map((comment) => {
