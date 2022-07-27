@@ -217,9 +217,23 @@ export const getStaticPaths = async () => {
   }));
   return {
     paths,
-    fallback: "blocking",
+    fallback: "blocking", //fails to find the page it returns a 404 error
   };
 };
+
+// similar to
+/*
+return {
+    paths:[
+    {
+        params:{
+        slug:post.slug.current
+        }
+    },
+    ],
+    fallback: "blocking",
+}
+*/
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const query = `
@@ -241,6 +255,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const postData = await sanityClient.fetch(query, {
     slug: params?.slug, //initializes the $slug variable ?optional
   });
+
   if (!postData) {
     return {
       notFound: true, //returns a 404 page if the post data is not found
@@ -250,20 +265,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     props: {
       postData,
     },
-    revalidate: 60, //revalidate the cached data Incremental static regeneration
+    revalidate: 60, //revalidate the cached data, Incremental static regeneration
   };
 };
 
-// similar to
-/*
-return {
-    paths:[
-    {
-        params:{
-        slug:post.slug.current
-        }
-    },
-    ],
-    fallback: "blocking",
-}
-*/
+
